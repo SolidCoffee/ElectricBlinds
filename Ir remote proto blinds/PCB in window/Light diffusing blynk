@@ -1,0 +1,82 @@
+#define BLYNK_PRINT Serial
+#include <WiFi.h>
+#include <WiFiClient.h>
+#include <BlynkSimpleEsp32.h>
+
+int Rel=2;
+int in1=23;
+int in2=22;
+int in3=21;
+int in4=19;
+int Bled=33;
+int Gled=32;
+int Rled=4;
+int dt=300;
+int up=5000;
+int down=4500;
+int pul=100;
+int freq=5000;
+int ledChannel=0;
+int resolution=8;
+
+char auth[] = "dOLT6P6zLctkAsBUlgOysvtgNiBUxpNM";
+char ssid[] = "ccsu-public";
+char pass[] = "8602353536";
+
+BLYNK_WRITE(V0) {
+  int bopen = param.asInt();
+  Serial.println(bopen);
+
+  if (bopen == 1){
+     digitalWrite(Rel,HIGH);
+            digitalWrite(in1,HIGH);
+            digitalWrite(in2,LOW);
+            digitalWrite(in3,LOW);
+            digitalWrite(in4,LOW);
+              delay(up);
+          digitalWrite(Rel,LOW);
+            digitalWrite(in1,LOW);
+            digitalWrite(in2,LOW);
+            digitalWrite(in3,LOW);
+            digitalWrite(in4,LOW);
+  }
+  else {
+    digitalWrite(Rel,HIGH); 
+        ledcWrite(ledChannel,150);
+          delay(down);
+        ledcWrite(ledChannel,0);
+        digitalWrite(Rel, LOW);
+  }
+}
+
+void setup() {
+  // put your setup code here, to run once:
+ pinMode(Bled,OUTPUT);
+    pinMode(Gled,OUTPUT);
+    pinMode(Rled,OUTPUT);
+    pinMode(in2,OUTPUT);
+    pinMode(in4, OUTPUT);
+    pinMode(in3,OUTPUT);
+    pinMode(in1,OUTPUT);
+    pinMode(Rel, OUTPUT);
+    ledcSetup(ledChannel, freq, resolution);
+    ledcAttachPin(in2, ledChannel);
+
+    Serial.begin(115200);
+delay(10);
+Serial.print("Connecting to ");
+Serial.println(ssid);
+WiFi.begin(ssid, NULL);
+int wifi_ctr=0;
+while (WiFi.status() != WL_CONNECTED) {
+    delay(500);
+    Serial.print(".");
+}
+Serial.println("Wifi Connected");
+  Blynk.begin("dOLT6P6zLctkAsBUlgOysvtgNiBUxpNM", ssid, NULL);
+}
+
+void loop() {
+  // put your main code here, to run repeatedly:
+Blynk.run();
+}
