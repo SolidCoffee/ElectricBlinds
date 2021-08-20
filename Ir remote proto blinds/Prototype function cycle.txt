@@ -1,0 +1,71 @@
+#include<IRremote.h>
+int IRpin=3;
+IRrecv IR(IRpin);
+decode_results cmd;
+int in1=6;
+int in2=10;
+int in3=5;
+int in4=9;
+int dtT=300;
+int dtM=8000;
+int dtT2=2000;
+
+void setup() {
+  // put your setup code here, to run once:
+pinMode(in1,OUTPUT);
+pinMode(in2,OUTPUT);
+pinMode(in3,OUTPUT);
+pinMode(in4,OUTPUT);
+Serial.begin(19200);
+IR.enableIRIn();
+}
+
+void loop() {
+  // put your main code here, to run repeatedly:
+analogWrite(in3,0);
+digitalWrite(in4,LOW);
+analogWrite(in1,0);
+analogWrite(in2,120);
+delay(dtT);
+analogWrite(in3,0);
+digitalWrite(in4,LOW);
+analogWrite(in1,0);
+analogWrite(in2,0);
+
+delay(10000);
+
+analogWrite(in3,0);
+analogWrite(in4,255);
+analogWrite(in1,0);
+analogWrite(in2,0);
+delay(10000);
+analogWrite(in3,0);
+analogWrite(in4,100);
+analogWrite(in1,0);
+analogWrite(in2,0);
+
+  delay(10000);
+
+analogWrite(in3,100);
+digitalWrite(in4,LOW);
+analogWrite(in1,0);
+analogWrite(in2,0);
+delay(10000);
+analogWrite(in3,0);
+analogWrite(in4,100);
+analogWrite(in1,0);
+analogWrite(in2,0);
+
+delay(10000);
+
+analogWrite(in3,0);
+digitalWrite(in4,LOW);
+analogWrite(in1,120);
+analogWrite(in2,0);
+delay(1000);
+analogWrite(in3,0);
+digitalWrite(in4,LOW);
+analogWrite(in1,0);
+analogWrite(in2,0);
+delay(10000);
+}
