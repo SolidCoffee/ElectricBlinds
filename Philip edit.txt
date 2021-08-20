@@ -1,0 +1,162 @@
+#include <IRremote.h>
+int IRpin=6;
+IRrecv IR(IRpin);
+decode_results cmd;
+String myCom;
+int red=11;
+int green=10;
+int blue=9;
+
+
+int CheckIrReceiver(int Location) 
+{
+  digitalWrite(red,LOW);
+  digitalWrite(green,LOW);
+  digitalWrite(blue,LOW);
+
+  Serial.println(0xDD0000+Location, HEX);
+  int flagReceiverIdle = (IR.decode(&cmd)==0);
+  if (flagReceiverIdle == 0) IR.resume();
+  Serial.println(0xEE0000+flagReceiverIdle, HEX);
+  return(flagReceiverIdle);
+}
+
+int DelayWithIrReceiver(int flagReceiverIdle) 
+{
+  int i = 200;
+  while (i && flagReceiverIdle) 
+  {
+    i--;
+    flagReceiverIdle = (IR.decode(&cmd)==0);
+    if (flagReceiverIdle == 0) IR.resume();
+  }
+  return(flagReceiverIdle);
+}
+
+
+void setup() {
+  // put your setup code here, to run once:
+Serial.begin(19200);
+pinMode(red,OUTPUT);
+pinMode(green,OUTPUT);
+pinMode(blue,OUTPUT);
+IR.enableIRIn();
+}
+
+
+int BufferedCommand;
+int BackgroundOpRuns;
+int BackgoundPhase;
+int BackgoundMode;
+int BackgroundI;
+
+void DoBackgroundLedService(void) {
+  if (BackgroundOpRuns) 
+  {
+    BackgoundPhase++;
+    if (BackgoundPhase > 25000) 
+    {
+      BackgoundPhase = 0;
+
+      BackgroundI++;
+      if (BackgroundI >= 10) 
+      {
+        BackgroundI = 0;
+        
+        BackgoundMode++;
+        if (BackgoundMode >= 6)
+        {
+          BackgoundMode = 0;
+        }
+        Serial.println(0xCC000000+BackgoundMode, HEX);
+      }
+
+      switch (BackgoundMode)
+      {
+        case 0:
+      digitalWrite(red,HIGH);
+      digitalWrite(green,LOW);
+      digitalWrite(blue,LOW);
+          //analogWrite(red, BackgroundI);
+          break;
+        case 1:
+      digitalWrite(red, LOW);
+      digitalWrite(green,HIGH);
+      digitalWrite(blue,LOW);
+          //analogWrite(green, BackgroundI);
+          break;
+        case 2:
+      digitalWrite(red, LOW);
+      digitalWrite(green,LOW);
+      digitalWrite(blue, HIGH);
+          //analogWrite(blue, BackgroundI);
+          break;
+        case 3:
+      digitalWrite(red, HIGH);
+      digitalWrite(green,LOW);
+      digitalWrite(blue, HIGH);
+          //analogWrite(green, 250-BackgroundI);
+          break;
+        case 4:
+      digitalWrite(red, HIGH);
+      digitalWrite(green, HIGH);
+      digitalWrite(blue, LOW);
+          //analogWrite(red, 250-BackgroundI);
+          break;
+        case 5:
+      digitalWrite(red, HIGH);
+      digitalWrite(green, HIGH);
+      digitalWrite(blue, HIGH);
+          //analogWrite(blue, 250-BackgroundI);
+          break;
+      }
+    }
+  }
+  
+  if (BufferedCommand == 0)  return;
+  if (BufferedCommand == -1) return;
+
+  BackgroundOpRuns = 0;
+  switch (BufferedCommand) 
+  {
+    case 0xFFA25D: // OFF
+      digitalWrite(red,LOW);
+      digitalWrite(green,LOW);
+      digitalWrite(blue,LOW);
+      break;
+    case 0xFF30CF: // Key 1
+      digitalWrite(red,HIGH);
+      digitalWrite(green,LOW);
+      digitalWrite(blue,LOW);
+      break;
+    case 0xFF18E7: // Key 2
+      digitalWrite(green,HIGH);
+      digitalWrite(red,LOW);
+      digitalWrite(blue,LOW);
+      break;
+    case 0xFF7A85: // Key 3
+      digitalWrite(green,LOW);
+      digitalWrite(red,LOW);
+      digitalWrite(blue,HIGH);
+      break;
+    case 0xFF10EF: // Key 4
+      // We are starting a background operation.
+      BackgroundOpRuns = 1;
+      BackgoundPhase   = 0;
+      break;
+  }
+  BufferedCommand = 0;
+}
+
+
+void loop() {
+  cmd.value = 0;
+  // put your main code here, to run repeatedly:
+  while (IR.decode(&cmd)==0)
+  {               //waits until first controller button is pressed after arduino starts
+    DoBackgroundLedService();
+  }
+  BufferedCommand = cmd.value;
+  Serial.println(cmd.value,HEX);
+  IR.resume();
+}

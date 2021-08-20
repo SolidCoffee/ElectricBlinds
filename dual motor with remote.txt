@@ -1,0 +1,71 @@
+#include <IRremote.h>
+int enA=9;
+int in1=8;
+int in2=7;
+int enB=3;
+int in3=5;
+int in4=4;
+int IRpin=10;
+IRrecv IR(IRpin);
+decode_results cmd;
+int i;
+
+void setup() {
+  // put your setup code here, to run once:
+pinMode(enA,OUTPUT);
+pinMode(in1,OUTPUT);
+pinMode(in2,OUTPUT);
+pinMode(enB,OUTPUT);
+pinMode(in3,OUTPUT);
+pinMode(in4,OUTPUT);
+Serial.begin(9600);
+IR.enableIRIn();
+}
+
+void loop() {
+  // put your main code here, to run repeatedly:
+while (IR.decode(&cmd)==0){
+  
+}
+Serial.println(cmd.value,HEX);
+IR.resume();
+
+switch(cmd.value)
+{
+  case 0xFF30CF:
+    Serial.println(i);
+    digitalWrite(in1,HIGH);
+    digitalWrite(in2,LOW);
+    analogWrite(enA,250);
+    digitalWrite(in3,LOW);
+    digitalWrite(in4,LOW);
+    analogWrite(enB,0);
+    delay(200);
+    digitalWrite(in3,LOW);
+    digitalWrite(in4,LOW);
+    analogWrite(enB,0);
+    digitalWrite(in1,LOW);
+    digitalWrite(in2,LOW);
+    analogWrite(enA,0);
+    
+  break;
+  case 0xFF18E7:
+    digitalWrite(in3,HIGH);
+    digitalWrite(in4,LOW);
+    analogWrite(enB,250);
+    digitalWrite(in1,LOW);
+    digitalWrite(in2,LOW);
+    analogWrite(enA,0);
+  break;
+  case 0xFFA25D:
+    digitalWrite(in3,LOW);
+    digitalWrite(in4,LOW);
+    analogWrite(enB,0);
+    digitalWrite(in1,LOW);
+    digitalWrite(in2,LOW);
+    analogWrite(enA,0);
+  break;
+}
+
+
+}

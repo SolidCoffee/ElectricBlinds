@@ -1,0 +1,51 @@
+#include <IRremote.h>
+int IRpin=6;
+IRrecv IR(IRpin);
+decode_results cmd;
+String myCom;
+int red=11;
+int green=10;
+int blue=9;
+
+
+
+Serial.begin(9600);
+IR.enableIRIn();
+pinMode(red,OUTPUT);
+pinMode(green,OUTPUT);
+pinMode(blue,OUTPUT);
+
+
+
+
+
+while (IR.decode(&cmd)==0){
+  
+}
+Serial.println(cmd.value,HEX);
+IR.resume();
+//off
+if (cmd.value==0xFF6897){
+  digitalWrite(red,LOW);
+  digitalWrite(green,LOW);
+  digitalWrite(blue,LOW);
+}
+//red
+if (cmd.value==0xFF30CF){
+  digitalWrite(red,HIGH);
+  digitalWrite(green,LOW);
+  digitalWrite(blue,LOW);
+}
+//green
+if (cmd.value==0xFF18E7){
+  digitalWrite(green,HIGH);
+  digitalWrite(red,LOW);
+  digitalWrite(blue,LOW);
+}
+//blue
+if (cmd.value==0xFF7A85){
+  digitalWrite(green,LOW);
+  digitalWrite(red,LOW);
+  digitalWrite(blue,HIGH);
+}
+}
